@@ -51,6 +51,9 @@ MILK = "milk"
 # Coffee maker's resources - the values represent the fill percents
 RESOURCES = {WATER: 100, COFFEE: 100, MILK: 100}
 
+COFFEE_RESOURCES = {ESPRESSO: {WATER: 5, COFFEE: 10, MILK: 0},
+                AMERICANO: {WATER: 10, COFFEE: 10, MILK: 0},
+                CAPPUCCINO: {WATER: 5, COFFEE: 10, MILK: 10}}
 """
 Example result/interactions:
 
@@ -100,16 +103,28 @@ def make_coffee(coffee):
 
     enough_resources = 1
     if make == 1:
-        for i in range(len(RESOURCES)):
-            if RESOURCES[i] < coffee[i]:
+        # print(COFFEE_RESOURCES[AMERICANO][WATER])
+        for i in RESOURCES:
+            if RESOURCES[i] < COFFEE_RESOURCES[coffee][i]:
                 enough_resources = 0;
                 print("We don't have enough resources. Please wait a sec.")
                 break;
         if enough_resources == 1:
             for res in RESOURCES:
-                RESOURCES[res] = RESOURCES[res] - coffee[res]
+                RESOURCES[res] = RESOURCES[res] - COFFEE_RESOURCES[coffee][res]
             print("Coffee ready! Good to go!")
 
+def refill_resource(your_resource):
+    if your_resource == "all":
+        for res in RESOURCES:
+            # print(res)
+            RESOURCES[res] = 100
+        show_status(RESOURCES)
+    elif your_resource == "water" or your_resource == "coffee" or your_resource == "milk":
+        RESOURCES[your_resource] = 100
+        show_status(RESOURCES)
+    else:
+        print("Please introduce a valid resource")
 
 
 print("I'm a simple coffee maker")
@@ -130,6 +145,7 @@ if __name__ == "__main__":
         elif your_command == RESOURCE_STATUS:
             show_status(RESOURCES)
         elif your_command == EXIT:
+            print("BYE BYE")
             break
         elif your_command == MAKE_COFFEE:
             print("Which coffee?")
@@ -138,12 +154,7 @@ if __name__ == "__main__":
         elif your_command == REFILL:
             print("Which resource to refill?")
             your_resource = sys.stdin.readline().strip()
-            if your_resource == "all":
-                for res in RESOURCES:
-                    RESOURCES[res] = 100;
-                show_status(RESOURCES);
-            # elif your_resource == "water":
-
+            refill_resource(your_resource)
 
         else:
             print("Please introduce a valid command.")
