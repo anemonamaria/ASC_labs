@@ -3,7 +3,7 @@ A command-line controlled coffee maker.
 """
 
 import sys
-
+import load_recipes
 """
 Implement the coffee maker's commands. Interact with the user via stdin and print to stdout.
 
@@ -42,7 +42,7 @@ commands = [EXIT, LIST_COFFEES, MAKE_COFFEE, REFILL, RESOURCE_STATUS, HELP]
 ESPRESSO = "espresso"
 AMERICANO = "americano"
 CAPPUCCINO = "cappuccino"
-
+COFFEES = [ESPRESSO, AMERICANO, CAPPUCCINO]
 # Resources examples
 WATER = "water"
 COFFEE = "coffee"
@@ -79,7 +79,71 @@ Enter command:
 exit
 """
 
+def show_coffees(coffees):
+    for coff in coffees:
+        print("---" + coff)
+    print()
+
+def show_status(status):
+    for stat in status:
+        print("current status for " + stat + " is ", status[stat])
+    print()
+
+def make_coffee(coffee):
+    make = 1
+    # for coff in COFFEES:
+    if coffee not in COFFEES:
+        make = 0
+        print("Sorry, we don't have this product")
+            # checks if the coffee is in our product list
+            # break
+
+    enough_resources = 1
+    if make == 1:
+        for i in range(len(RESOURCES)):
+            if RESOURCES[i] < coffee[i]:
+                enough_resources = 0;
+                print("We don't have enough resources. Please wait a sec.")
+                break;
+        if enough_resources == 1:
+            for res in RESOURCES:
+                RESOURCES[res] = RESOURCES[res] - coffee[res]
+            print("Coffee ready! Good to go!")
+
+
+
 print("I'm a simple coffee maker")
-print("Press enter")
-sys.stdin.readline()
-print("Teach me how to make coffee...please...")
+print("Press enter to see available commands")
+# load_recipes.show_recipe("americano")
+# sys.stdin.readline()
+# print("Teach me how to make coffee...please...")
+if __name__ == "__main__":
+    print(commands)
+
+    while 1:
+        print("What do you want me to do?")
+        your_command = sys.stdin.readline().strip()
+
+        if your_command == LIST_COFFEES:
+            print("we have ")
+            show_coffees(COFFEES)
+        elif your_command == RESOURCE_STATUS:
+            show_status(RESOURCES)
+        elif your_command == EXIT:
+            break
+        elif your_command == MAKE_COFFEE:
+            print("Which coffee?")
+            your_coffee = sys.stdin.readline().strip()
+            make_coffee(your_coffee)
+        elif your_command == REFILL:
+            print("Which resource to refill?")
+            your_resource = sys.stdin.readline().strip()
+            if your_resource == "all":
+                for res in RESOURCES:
+                    RESOURCES[res] = 100;
+                show_status(RESOURCES);
+            # elif your_resource == "water":
+
+
+        else:
+            print("Please introduce a valid command.")
