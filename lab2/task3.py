@@ -28,6 +28,8 @@ Consumer 135 consumed cappuccino
 Consumer 94 consumed americano
 """
 
+from threading import Semaphore, Thread
+from random import  choice
 
 class Coffee:
     """ Base class """
@@ -55,7 +57,7 @@ class ExampleCoffee:
 class AmericanoCoffee(Coffee):
     """ Espresso implementation """
     def __init__(self, size):
-        Coffee.__init__("Americano", size)
+        Coffee.__init__(self, "Americano", size)
 
     def get_message(self):
         """ Output message """
@@ -64,7 +66,7 @@ class AmericanoCoffee(Coffee):
 class CappuccinoCoffee(Coffee):
     """ Espresso implementation """
     def __init__(self, size):
-        Coffee.__init__("Cappuccino", size)
+        Coffee.__init__(self, "Cappuccino", size)
 
     def get_message(self):
         """ Output message """
@@ -73,11 +75,71 @@ class CappuccinoCoffee(Coffee):
 class EspressoCoffee(Coffee):
     """ Espresso implementation """
     def __init__(self, size):
-        Coffee.__init__("Espresso", size)
+        Coffee.__init__(self, "Espresso", size)
 
     def get_message(self):
         """ Output message """
         return "You've got your " + self.get_name() + " size:" + self.get_size()
 
+TYPES = [EspressoCoffee, AmericanoCoffee, CappuccinoCoffee]
+SIZES = ['s', 'l', 'xxl']
+
+class Distributor:
+    def __init__(self, n):
+        self.full = n
+        self.arr = []
+        self.sem_producer = Semaphore(self.full)
+        self.sem_consumer = Semaphore(0)
+
+    def produce(self, coffee, name, nr):
+        self.sem_producer.acquire()
+        self.arr.append(coffee)
+        print(name, nr, 'produced', coffee.get_message())
+        self.sem_consumer.release()
+
+    def consume(self, name, nr):
+        self.sem_consumer.acquire()
+        print(name, nr, 'consumed', self.arr.pop().get_name())
+        self.sem_producer.release()
+
+
+class CoffeeFactory:
+    def __init__(self, name, nr, distributor):
+        self.name = name
+        self.nr = nr
+        self.distributor = distributor
+
+    def process(self):
+        while True:
+            coffee_type = choice(TYPES)
+            self.distributor.produce(coffee_type(choice(SIZES)), self.name, self.nr)
+
+class User:
+    def __init__(self, name, nr, distributor):
+        self.name = name
+        self.nr = nr
+        self.distributor = distributor
+
+    def process(self):
+        while True:
+            self.distributor.consume(self.name, self.nr)
+
 if __name__ == '__main__':
-    pass
+    nr_producers = 5
+    nr_consumers = 9
+    distributor = Distributor(nr_producers)
+    threads = []
+
+    for i in range(nr_producers):
+        p = CoffeeFactory('Factory', i, distributor)
+        threads.append((Thread(target=p.process)))
+
+    for i in range(nr_consumers):
+        c = User('Consumer', i, distributor)
+        threads.append((Thread(target=c.process)))
+
+    for i in threads:
+        i.start()
+
+    for i in threads:
+        i.join()
