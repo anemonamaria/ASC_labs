@@ -15,6 +15,7 @@ class Master(Thread):
         for i in range(self.max_work):
             # Generate work
             self.work = i
+            print("work", self.work)
             # Notify worker
             self.work_available.set()
             self.work_available.clear()
@@ -45,7 +46,8 @@ class Worker(Thread):
                 break
             # Generate result
             self.result = self.master.get_work() + 1
-            sleep(0.000001)
+            print("worker", self.result)
+            sleep(0.001)
             # Notify master
             self.result_available.set()
             self.result_available.clear()
