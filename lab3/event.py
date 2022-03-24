@@ -5,8 +5,8 @@ class Master(Thread):
     def __init__(self, max_work, condition):
         Thread.__init__(self, name = "Master")
         self.max_work = max_work
-        self.work_available = work_available
-        self.result_available = result_available
+        # self.work_available = work_available
+        # self.result_available = result_available
         self.condition = condition
 
     def set_worker(self, worker):
@@ -37,8 +37,8 @@ class Worker(Thread):
         Thread.__init__(self, name = "Worker")
         self.terminate = terminate
         self.condition = condition
-        self.work_available = work_available
-        self.result_available = result_available
+        # self.work_available = work_available
+        # self.result_available = result_available
 
     def set_master(self, master):
         self.master = master

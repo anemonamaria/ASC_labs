@@ -1,6 +1,5 @@
 from random import choice, seed
 from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import as_completed
 
 def find_seq(data):
     index = data[0]
@@ -18,7 +17,7 @@ if __name__ == "__main__":
         seed(i)
         samples.append("".join([choice("ACGT") for i in range(10000)]))
 
-    seq = "CACCGGG"
+    seq = "ACGTACG"
     data = [(index, samples[index], seq) for index in range(100)]
 
     with ThreadPoolExecutor(max_workers=30) as executor:
